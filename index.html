@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Easy Street Cam</title>
+    <title>Easy Street Camera</title>
     <style>
         * {
             margin: 0;
@@ -108,7 +108,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>Easy Street</h1>
+        <h1>📷 Easy Street Camera</h1>
         <div class="timestamp" id="timestamp">Loading...</div>
         
         <div class="image-container">
@@ -124,9 +124,19 @@
 
     <script>
         // ===== CONFIGURATION =====
-        // Replace this with your Google Drive direct link (see setup instructions)
-        const FILE_ID = '1_YFgE3PEHCzpNAZuTf3yBN640He7CK_d';
-        const IMAGE_URL = `https://drive.google.com/thumbnail?id=${FILE_ID}&sz=w2000`;
+        // *** IMPORTANT: Replace YOUR_FILE_ID_HERE with your actual Google Drive FILE_ID ***
+        // 
+        // How to get your FILE_ID:
+        // 1. Go to Google Drive and open your 'picam' folder
+        // 2. Right-click on 'latest.jpg' → 'Share' or 'Get link'
+        // 3. Set permissions to "Anyone with the link"
+        // 4. Copy the link (looks like: https://drive.google.com/file/d/1ABC123XYZ/view)
+        // 5. Extract the FILE_ID (the part between /d/ and /view) - in this example: 1ABC123XYZ
+        // 6. Replace YOUR_FILE_ID_HERE below with your FILE_ID
+        //
+        const FILE_ID = 'YOUR_FILE_ID_HERE';
+        // Using uc?export=view instead of thumbnail - it caches less
+        const IMAGE_URL = `https://drive.google.com/uc?export=view&id=${FILE_ID}`;
         
         // How often to check for new image (milliseconds)
         const REFRESH_INTERVAL = 60000; // 60 seconds
@@ -151,7 +161,7 @@
         }
         
         function loadImage() {
-            // Add timestamp to URL to prevent caching
+            // Add timestamp to URL to prevent caching - both from browser AND Google Drive
             const cacheBuster = new Date().getTime();
             const imageUrlWithCacheBuster = `${IMAGE_URL}&t=${cacheBuster}`;
             
@@ -166,7 +176,7 @@
             };
             
             testImg.onerror = function() {
-                loadingElement.innerHTML = '<div class="error">❌ Try restarting before calling or texting .</div>';
+                loadingElement.innerHTML = '<div class="error">❌ Unable to load image.<br>Please check the setup instructions.</div>';
                 updateTimestamp();
             };
             
