@@ -1,38 +1,185 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>Easy Street Camera</title>
-  <meta http-equiv="refresh" content="60">
-  <style>
-    body {
-      margin: 0;
-      background-color: #000;
-      color: white;
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      height: 100vh;
-    }
-
-    h1 {
-      margin-top: 10px;
-      margin-bottom: 20px;
-      font-size: 24px;
-    }
-
-    img.rotated {
-      transform: rotate(0deg);
-      max-width: 100vw;
-      max-height: 90vh;
-      cursor: pointer;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Family Camera Feed</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 30px;
+            max-width: 1200px;
+            width: 100%;
+        }
+        
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+        
+        .timestamp {
+            text-align: center;
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 0.95em;
+        }
+        
+        .image-container {
+            position: relative;
+            width: 100%;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .camera-image {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+            font-size: 1.1em;
+        }
+        
+        .refresh-info {
+            text-align: center;
+            margin-top: 20px;
+            color: #666;
+            font-size: 0.9em;
+        }
+        
+        .status {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #4caf50;
+            margin-right: 5px;
+            animation: pulse 2s infinite;
+        }
+        
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .error {
+            text-align: center;
+            padding: 40px 20px;
+            color: #d32f2f;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+            }
+            
+            h1 {
+                font-size: 1.5em;
+            }
+        }
+    </style>
 </head>
 <body>
-  <h1>Easy Street Camera</h1>
-  <img src="latest.jpg" class="rotated" onclick="this.requestFullscreen()" />
+    <div class="container">
+        <h1>📷 Family Camera Feed</h1>
+        <div class="timestamp" id="timestamp">Loading...</div>
+        
+        <div class="image-container">
+            <div class="loading" id="loading">Loading latest image...</div>
+            <img class="camera-image" id="camera-image" style="display: none;" alt="Latest camera capture">
+        </div>
+        
+        <div class="refresh-info">
+            <span class="status"></span>
+            <span id="refresh-text">Auto-refreshing every 60 seconds</span>
+        </div>
+    </div>
+
+    <script>
+        // ===== CONFIGURATION =====
+        // Replace this with your Google Drive direct link (see setup instructions)
+        const IMAGE_URL = 'https://drive.google.com/uc?export=download&id=YOUR_FILE_ID_HERE';
+        
+        // How often to check for new image (milliseconds)
+        const REFRESH_INTERVAL = 60000; // 60 seconds
+        // =========================
+        
+        const imageElement = document.getElementById('camera-image');
+        const loadingElement = document.getElementById('loading');
+        const timestampElement = document.getElementById('timestamp');
+        
+        function updateTimestamp() {
+            const now = new Date();
+            const options = { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            timestampElement.textContent = `Last checked: ${now.toLocaleDateString('en-US', options)}`;
+        }
+        
+        function loadImage() {
+            // Add timestamp to URL to prevent caching
+            const cacheBuster = new Date().getTime();
+            const imageUrlWithCacheBuster = `${IMAGE_URL}&t=${cacheBuster}`;
+            
+            // Create a new image to test loading
+            const testImg = new Image();
+            
+            testImg.onload = function() {
+                imageElement.src = imageUrlWithCacheBuster;
+                imageElement.style.display = 'block';
+                loadingElement.style.display = 'none';
+                updateTimestamp();
+            };
+            
+            testImg.onerror = function() {
+                loadingElement.innerHTML = '<div class="error">❌ Unable to load image.<br>Please check the setup instructions.</div>';
+                updateTimestamp();
+            };
+            
+            testImg.src = imageUrlWithCacheBuster;
+        }
+        
+        // Load image immediately
+        loadImage();
+        
+        // Refresh image at interval
+        setInterval(loadImage, REFRESH_INTERVAL);
+        
+        // Update the refresh text
+        document.getElementById('refresh-text').textContent = `Auto-refreshing every ${REFRESH_INTERVAL / 1000} seconds`;
+    </script>
 </body>
 </html>
