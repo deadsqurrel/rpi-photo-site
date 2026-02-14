@@ -118,7 +118,7 @@
         
         <div class="refresh-info">
             <span class="status"></span>
-            <span id="refresh-text">Auto-refreshing every 60 seconds</span>
+            <span id="refresh-text">Auto-refreshing every 500 seconds</span>
         </div>
     </div>
 
@@ -134,7 +134,7 @@
         // 5. Extract the FILE_ID (the part between /d/ and /view) - in this example: 1ABC123XYZ
         // 6. Replace YOUR_FILE_ID_HERE below with your FILE_ID
         //
-        const FILE_ID = 'YOUR_FILE_ID_HERE';
+        const FILE_ID = '1_YFgE3PEHCzpNAZuTf3yBN640He7CK_d';
         // Using uc?export=view instead of thumbnail - it caches less
         const IMAGE_URL = `https://drive.google.com/uc?export=view&id=${FILE_ID}`;
         
@@ -176,7 +176,7 @@
             };
             
             testImg.onerror = function() {
-                loadingElement.innerHTML = '<div class="error">❌ Unable to load image.<br>Please check the setup instructions.</div>';
+                loadingElement.innerHTML = '<div class="error">❌ Refresh before calling me and wait.</div>';
                 updateTimestamp();
             };
             
