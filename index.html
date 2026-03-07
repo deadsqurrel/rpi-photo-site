@@ -118,7 +118,7 @@
         
         <div class="refresh-info">
             <span class="status"></span>
-            <span id="refresh-text">Auto-refreshing every 500 seconds</span>
+            <span id="refresh-text">Auto-refreshing every 60 seconds</span>
         </div>
     </div>
 
@@ -134,11 +134,9 @@
         // 5. Extract the FILE_ID (the part between /d/ and /view) - in this example: 1ABC123XYZ
         // 6. Replace YOUR_FILE_ID_HERE below with your FILE_ID
         //
-        const FILE_ID = '1_YFgE3PEHCzpNAZuTf3yBN640He7CK_d';
-        const IMAGE_URL = `https://lh3.googleusercontent.com/d/${FILE_ID}`;
-        
-        // How often to check for new image (milliseconds)
-        const REFRESH_INTERVAL = 60000; // 60 seconds
+        const FILE_ID = 'YOUR_FILE_ID_HERE';
+        // Using uc?export=view instead of thumbnail - it caches less
+        const IMAGE_URL = `https://drive.google.com/uc?export=view&id=${FILE_ID}`;
         // =========================
         
         const imageElement = document.getElementById('camera-image');
@@ -175,21 +173,20 @@
             };
             
             testImg.onerror = function() {
-                loadingElement.innerHTML = '<div class="error">❌ Refresh before calling me and wait.</div>';
+                loadingElement.innerHTML = '<div class="error">❌ Unable to load image.<br>Please check the setup instructions.</div>';
                 updateTimestamp();
             };
             
             testImg.src = imageUrlWithCacheBuster;
         }
         
-        // Load image immediately
+        // Load image when page loads
         loadImage();
         
-        // Refresh image at interval
-        setInterval(loadImage, REFRESH_INTERVAL);
+        // No auto-refresh - user manually refreshes browser to check for new images
         
-        // Update the refresh text
-        document.getElementById('refresh-text').textContent = `Auto-refreshing every ${REFRESH_INTERVAL / 1000} seconds`;
+        // Manual refresh only
+        document.getElementById('refresh-text').textContent = `Refresh your browser to see new images`;
     </script>
 </body>
 </html>
