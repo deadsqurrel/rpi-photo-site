@@ -10,102 +10,76 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
             padding: 20px;
         }
         .container {
-            background: white;
-            border-radius: 20px;
+            background: white; border-radius: 20px;
             box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 30px;
-            max-width: 1200px;
-            width: 100%;
+            padding: 30px; max-width: 900px; width: 100%;
         }
         h1 { text-align: center; color: #333; margin-bottom: 10px; font-size: 2em; }
         .timestamp { text-align: center; color: #666; margin-bottom: 25px; font-size: 0.95em; }
+        
+        /* The Wrapper for the Iframe */
         .image-container {
             position: relative;
             width: 100%;
+            padding-top: 56.25%; /* 16:9 Aspect Ratio */
             background: #f0f0f0;
             border-radius: 10px;
             overflow: hidden;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            min-height: 300px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
         }
-        .camera-image { width: 100%; height: auto; display: block; }
-        .loading { color: #999; font-size: 1.1em; }
+        
+        /* The actual Iframe replaces the <img> tag */
+        #camera-frame {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border: none;
+        }
+
         .refresh-info { text-align: center; margin-top: 20px; color: #666; font-size: 0.9em; }
         .status {
-            display: inline-block;
-            width: 10px; height: 10px;
-            border-radius: 50%;
-            background: #4caf50;
-            margin-right: 5px;
-            animation: pulse 2s infinite;
+            display: inline-block; width: 10px; height: 10px;
+            border-radius: 50%; background: #4caf50;
+            margin-right: 5px; animation: pulse 2s infinite;
         }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-        .error { text-align: center; color: #d32f2f; padding: 20px; }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>📷 Easy Street Camera</h1>
-        <div class="timestamp" id="timestamp">Waiting for data...</div>
+        <div class="timestamp" id="timestamp">Updating...</div>
         
         <div class="image-container">
-            <div class="loading" id="loading">Loading latest image...</div>
-            <img class="camera-image" id="camera-image" style="display: none;" alt="Latest camera capture">
+            <!-- Google Drive Iframe Preview -->
+            <iframe id="camera-frame" src="" allow="autoplay"></iframe>
         </div>
         
         <div class="refresh-info">
             <span class="status"></span>
-            <span id="refresh-text">Refresh your browser to check for new images</span>
+            <span id="refresh-text">Refresh browser to see the latest capture</span>
         </div>
     </div>
 
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            // Your verified File ID
             const FILE_ID = '1_YFgE3PEHCzpNAZuTf3yBN640He7CK_d';
             
-            // Using the thumbnail endpoint is the most reliable way to embed Drive images
-            // Added sz=w1200 for higher resolution
-            const IMAGE_BASE_URL = `https://drive.google.com{FILE_ID}&sz=w1200`;
+            // The /preview link is the ONLY one currently allowed for embedding
+            const PREVIEW_URL = `https://drive.google.com{FILE_ID}/preview`;
             
-            const imgEl = document.getElementById('camera-image');
-            const loadEl = document.getElementById('loading');
+            const frameEl = document.getElementById('camera-frame');
             const timeEl = document.getElementById('timestamp');
 
-            function loadImage() {
-                // Cache-buster: adds a unique timestamp so the browser doesn't show an old version
-                const finalUrl = `${IMAGE_BASE_URL}&t=${Date.now()}`;
-                
-                const testImg = new Image();
-                testImg.onload = () => {
-                    imgEl.src = finalUrl;
-                    imgEl.style.display = 'block';
-                    loadEl.style.display = 'none';
-                    timeEl.textContent = `Last updated: ${new Date().toLocaleString()}`;
-                };
-                
-                testImg.onerror = () => {
-                    loadEl.innerHTML = `
-                        <div class="error">
-                            ❌ Unable to load image.<br>
-                            <small>Verify that "Anyone with the link" access is enabled in Drive.</small>
-                        </div>`;
-                };
-                
-                testImg.src = finalUrl;
+            function loadFrame() {
+                // Cache-buster ensures Google doesn't serve an old version of the file
+                frameEl.src = `${PREVIEW_URL}?t=${Date.now()}`;
+                timeEl.textContent = `Last checked: ${new Date().toLocaleString()}`;
             }
 
-            loadImage();
+            loadFrame();
         });
     </script>
 </body>
