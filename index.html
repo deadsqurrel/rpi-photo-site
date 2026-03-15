@@ -1,86 +1,223 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Easy Street Camera</title>
-    <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 20px;
-        }
-        .container {
-            background: white; border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            padding: 30px; max-width: 900px; width: 100%;
-        }
-        h1 { text-align: center; color: #333; margin-bottom: 10px; font-size: 2em; }
-        .timestamp { text-align: center; color: #666; margin-bottom: 25px; font-size: 0.95em; }
-        
-        /* The Wrapper for the Iframe */
-        .image-container {
-            position: relative;
-            width: 100%;
-            padding-top: 56.25%; /* 16:9 Aspect Ratio */
-            background: #f0f0f0;
-            border-radius: 10px;
-            overflow: hidden;
-        }
-        
-        /* The actual Iframe replaces the <img> tag */
-        #camera-frame {
-            position: absolute;
-            top: 0; left: 0; width: 100%; height: 100%;
-            border: none;
-        }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Malachi Lake Camera</title>
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
 
-        .refresh-info { text-align: center; margin-top: 20px; color: #666; font-size: 0.9em; }
-        .status {
-            display: inline-block; width: 10px; height: 10px;
-            border-radius: 50%; background: #4caf50;
-            margin-right: 5px; animation: pulse 2s infinite;
-        }
-        @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.5; } }
-    </style>
+    body {
+      background: #0d1117;
+      color: #e6edf3;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 2rem 1rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+
+    header h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      letter-spacing: 0.02em;
+      color: #f0f6fc;
+    }
+
+    header p.subtitle {
+      font-size: 0.9rem;
+      color: #8b949e;
+      margin-top: 0.3rem;
+    }
+
+    .camera-card {
+      background: #161b22;
+      border: 1px solid #30363d;
+      border-radius: 12px;
+      overflow: hidden;
+      max-width: 960px;
+      width: 100%;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+    }
+
+    .image-wrapper {
+      position: relative;
+      background: #0d1117;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .image-wrapper img {
+      display: block;
+      width: 100%;
+      height: auto;
+      max-height: 70vh;
+      object-fit: contain;
+    }
+
+    .image-wrapper .loading-msg {
+      position: absolute;
+      color: #8b949e;
+      font-size: 0.9rem;
+    }
+
+    .controls {
+      padding: 1rem 1.25rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      border-top: 1px solid #21262d;
+    }
+
+    .status {
+      font-size: 0.85rem;
+      color: #8b949e;
+      line-height: 1.5;
+    }
+
+    .status span#last-updated {
+      color: #58a6ff;
+    }
+
+    .status span#load-status {
+      display: block;
+      font-size: 0.8rem;
+    }
+
+    .status span.ok   { color: #3fb950; }
+    .status span.fail { color: #f85149; }
+    .status span.loading { color: #d29922; }
+
+    button#refresh-btn {
+      background: #238636;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 0.5rem 1.1rem;
+      font-size: 0.9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.15s;
+      white-space: nowrap;
+    }
+
+    button#refresh-btn:hover  { background: #2ea043; }
+    button#refresh-btn:active { background: #1a7f37; }
+    button#refresh-btn:disabled {
+      background: #21262d;
+      color: #484f58;
+      cursor: not-allowed;
+    }
+
+    footer {
+      margin-top: 1.5rem;
+      font-size: 0.78rem;
+      color: #484f58;
+      text-align: center;
+    }
+  </style>
 </head>
 <body>
-    <div class="container">
-        <h1>📷 Easy Street Camera</h1>
-        <div class="timestamp" id="timestamp">Updating...</div>
-        
-        <div class="image-container">
-            <!-- Google Drive Iframe Preview -->
-            <iframe id="camera-frame" src="" allow="autoplay"></iframe>
-        </div>
-        
-        <div class="refresh-info">
-            <span class="status"></span>
-            <span id="refresh-text">Refresh browser to see the latest capture</span>
-        </div>
+
+  <header>
+    <h1>🌲 Easy Street</h1>
+    <p class="subtitle"> &nbsp;·&nbsp; Updates every 5 minutes during daylight</p>
+  </header>
+
+  <div class="camera-card">
+    <div class="image-wrapper">
+      <span class="loading-msg" id="loading-msg">Loading image…</span>
+      <img id="cam-image" src="" alt="Malachi Lake live camera" style="display:none;" />
     </div>
+    <div class="controls">
+      <div class="status">
+        Last refreshed: <span id="last-updated">—</span>
+        <span id="load-status"></span>
+      </div>
+      <button id="refresh-btn" onclick="refreshImage()">↻ Refresh</button>
+    </div>
+  </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const FILE_ID = '1_YFgE3PEHCzpNAZuTf3yBN640He7CK_d';
-            
-            // The /preview link is the ONLY one currently allowed for embedding
-            const PREVIEW_URL = `https://drive.google.com{FILE_ID}/preview`;
-            
-            const frameEl = document.getElementById('camera-frame');
-            const timeEl = document.getElementById('timestamp');
+  <footer>
+    Raspberry Pi Zero 2 W &nbsp;·&nbsp; rpicam-still &nbsp;·&nbsp; Hosted via ImgBB
+  </footer>
 
-            function loadFrame() {
-                // Cache-buster ensures Google doesn't serve an old version of the file
-                frameEl.src = `${PREVIEW_URL}?t=${Date.now()}`;
-                timeEl.textContent = `Last checked: ${new Date().toLocaleString()}`;
-            }
+  <script>
+    // ---------------------------------------------------------------
+    // CONFIGURATION
+    // Get this URL by running on your Pi:  cat /home/thecabin/imgbb_url.txt
+    // After your first ImgBB upload, replace PASTE_IMGBB_URL_HERE with
+    // the actual URL (looks like https://i.ibb.co/xxxxx/latest.jpg)
+    // ---------------------------------------------------------------
+    const IMAGE_URL = 'https://i.ibb.co/wNWVjn8F/latest.jpg';
+    // ---------------------------------------------------------------
 
-            loadFrame();
-        });
-    </script>
+    const img         = document.getElementById('cam-image');
+    const loadingMsg  = document.getElementById('loading-msg');
+    const lastUpdated = document.getElementById('last-updated');
+    const loadStatus  = document.getElementById('load-status');
+    const refreshBtn  = document.getElementById('refresh-btn');
+
+    function setStatus(state, text) {
+      loadStatus.className = state;
+      loadStatus.textContent = text;
+    }
+
+    function refreshImage() {
+      if (!IMAGE_URL || IMAGE_URL === 'PASTE_IMGBB_URL_HERE') {
+        loadingMsg.textContent = '⚠ No image URL configured.';
+        loadingMsg.style.display = 'block';
+        setStatus('fail', 'Edit index.html and set IMAGE_URL to your ImgBB URL.');
+        return;
+      }
+
+      refreshBtn.disabled = true;
+      loadingMsg.style.display  = 'block';
+      img.style.display = 'none';
+      setStatus('loading', 'Loading…');
+
+      // Cache-bust: append timestamp so browser always fetches fresh copy
+      const bustUrl = IMAGE_URL + '?t=' + Date.now();
+
+      const tempImg = new Image();
+
+      tempImg.onload = function () {
+        img.src = bustUrl;
+        img.style.display = 'block';
+        loadingMsg.style.display = 'none';
+        lastUpdated.textContent = new Date().toLocaleTimeString();
+        setStatus('ok', '✓ Image loaded');
+        refreshBtn.disabled = false;
+      };
+
+      tempImg.onerror = function () {
+        loadingMsg.textContent = '⚠ Could not load image.';
+        loadingMsg.style.display = 'block';
+        img.style.display = 'none';
+        setStatus('fail', 'Check that the Pi has uploaded at least once and the URL is correct.');
+        refreshBtn.disabled = false;
+      };
+
+      tempImg.src = bustUrl;
+    }
+
+    // Load image on page open
+    refreshImage();
+  </script>
+
 </body>
 </html>
